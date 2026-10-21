@@ -1,0 +1,9 @@
+{
+  "name": "jdquest",
+  "private": true,
+  "type": "module",
+  "description": "Premios de la Delegación UTN FRVM: votación y entrega",
+  "dependencies": {
+    "@upstash/redis": "^1.39.0"
+  }
+}
