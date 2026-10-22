@@ -384,7 +384,8 @@ const RAW = [
   ['Joaquin','Agüero Bergesio','vm','J'],['Iker Rafael','Cavani','vm','J'],['Santino','Celli','vm','J'],['Valentino','Gamba','vm','J'],
   ['Joaquín','Gismondi','vm','J'],['Santiago','Gomez','vm','J'],['Alexis','Laurent','vm','J'],['Juan Facundo','Martinuzzi','vm','J'],
   ['Lucio Agustin','Quintans Callejas','vm','J'],['Facundo','Tejero','vm','J'],['Fernando','Badran','vm','DT'],
-  ['Julián Santiago','Quiroga','jd','JD']
+  ['Julián Santiago','Quiroga','jd','JD'],
+  ['Victoria','Romero','ff','J']
 ];
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const PEOPLE = RAW.map((r,i) => ({ i, given:r[0], last:r[1], sport:r[2], role:r[3],
