@@ -364,7 +364,7 @@ const SPORTS = {
   vf:{name:'Vóley Femenino', c:'--c-vf'}, vm:{name:'Vóley Masculino', c:'--c-vm'},
   jd:{name:'Jefatura', c:'--c-jd'}
 };
-// [nombres, apellido, deporte, rol: J jugador/a · DT · JD jefe de delegación]
+// [nombres, apellido, deporte, rol: J jugador/a · DT · JD jefe de delegación · V solo vota (no viajó, no se la puede votar)]
 // The ORDER is fixed: vote codes store positions. Only add people at the end.
 const RAW = [
   ['Luciano Daniel','Ariaudo Fiandino','aj','J'],['Thomas Leonardo','Koncurat','aj','J'],['Mauricio','Pavignano','aj','DT'],
@@ -385,7 +385,8 @@ const RAW = [
   ['Joaquín','Gismondi','vm','J'],['Santiago','Gomez','vm','J'],['Alexis','Laurent','vm','J'],['Juan Facundo','Martinuzzi','vm','J'],
   ['Lucio Agustin','Quintans Callejas','vm','J'],['Facundo','Tejero','vm','J'],['Fernando','Badran','vm','DT'],
   ['Julián Santiago','Quiroga','jd','JD'],
-  ['Victoria','Romero','ff','J']
+  ['Victoria','Romero','ff','V'],
+  ['Agus','Tottis','ff','V']
 ];
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const PEOPLE = RAW.map((r,i) => ({ i, given:r[0], last:r[1], sport:r[2], role:r[3],
@@ -395,7 +396,7 @@ const isPlayer = p => p.role === 'J';
 
 // Ballots store picks by award id: keep an id when editing its award, a new id means no votes yet.
 // Gift number = position in CATS (counted from 1), so add new awards at the end.
-const all = () => true;
+const all = p => p.role !== 'V';
 const CATS = [
   {id:'botin-m', title:'Botín de Oro', tag:'fm', desc:'El mejor jugador del equipo de fútbol masculino.', who:p => p.sport==='fm' && isPlayer(p)},
   {id:'botin-f', title:'Botín de Oro', tag:'ff', desc:'La mejor jugadora del equipo de fútbol femenino.', who:p => p.sport==='ff' && isPlayer(p)},
