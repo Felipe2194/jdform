@@ -16,7 +16,7 @@ export default async function handler(req, res){
     if (action === 'open'){
       if (open) await redis.del(K.closed); else await redis.set(K.closed, 1);
     } else if (action === 'delete'){
-      if (!isVoter(voter)) return send(res, { error: 'invalid' });
+      if (!(await isVoter(voter))) return send(res, { error: 'invalid' });
       await redis.del(K.ballot(voter));
       await redis.srem(K.voted, voter);
     } else if (action !== 'state'){

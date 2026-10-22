@@ -13,15 +13,21 @@ export const K = {
   voted: P + 'voted',               // set of voter indexes with a ballot
   ballot: v => P + 'ballot:' + v,   // {voter, picks, savedAt}
   fails: who => P + 'fails:' + who, // failed legajo/password attempts, expire after 15 min
+  extra: P + 'extra',               // hash voter index -> legajo/DNI for people added after LEGAJOS
 };
 
 // LEGAJOS: JSON array with one legajo per person, in the same order as RAW in public/index.html.
 // It lives only in Vercel's environment variables, never in the repo.
 export const normLegajo = s => String(s ?? '').replace(/\D/g, '').replace(/^0+/, '');
+// People added later can live in Redis instead (K.extra), so adding a voter needs no env change.
 let legajos;
-const legajoOf = voter => (legajos ??= JSON.parse(process.env.LEGAJOS || '[]').map(normLegajo))[voter];
-export const peopleCount = () => (legajoOf(0), legajos.length);
-export const isVoter = v => Number.isInteger(v) && !!legajoOf(v);
+const envLegajos = () => (legajos ??= JSON.parse(process.env.LEGAJOS || '[]').map(normLegajo));
+export const peopleCount = () => envLegajos().length;
+async function legajoOf(voter){
+  if (!Number.isInteger(voter) || voter < 0) return '';
+  return envLegajos()[voter] || normLegajo(await redis.hget(K.extra, String(voter)));
+}
+export const isVoter = async v => !!(await legajoOf(v));
 
 const digest = s => createHash('sha256').update(String(s)).digest();
 const same = (a, b) => timingSafeEqual(digest(a), digest(b));
@@ -37,8 +43,9 @@ export async function guard(who, ok){
   return 'wrong';
 }
 export async function checkVoter(voter, legajo){
-  if (!isVoter(voter)) return 'invalid';
-  const r = await guard('voter:' + voter, () => same(normLegajo(legajo), legajoOf(voter)));
+  const real = await legajoOf(voter);
+  if (!real) return 'invalid';
+  const r = await guard('voter:' + voter, () => same(normLegajo(legajo), real));
   return r === 'wrong' ? 'legajo' : r;
 }
 export async function checkAdmin(password){
