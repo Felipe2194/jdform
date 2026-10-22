@@ -393,35 +393,53 @@ const PEOPLE = RAW.map((r,i) => ({ i, given:r[0], last:r[1], sport:r[2], role:r[
 const roleLabel = p => p.role === 'DT' ? 'DT' : p.role === 'JD' ? 'Jefe de delegación' : '';
 const isPlayer = p => p.role === 'J';
 
-// The ORDER is fixed too (codes store one slot per award). Add awards only at the end.
+// Ballots store picks by award id: keep an id when editing its award, a new id means no votes yet.
+// prize: the gift for the winner. Only organizers see it (results and the award night).
+const all = () => true;
 const CATS = [
-  {id:'botin-m', title:'Botín de Oro', tag:'fm', desc:'El mejor jugador del equipo de fútbol masculino.', who:p => p.sport==='fm' && isPlayer(p)},
-  {id:'botin-f', title:'Botín de Oro', tag:'ff', desc:'La mejor jugadora del equipo de fútbol femenino.', who:p => p.sport==='ff' && isPlayer(p)},
-  {id:'mvp-bq', title:'MVP del Básquet', tag:'bq', desc:'El que más la rompió bajo el aro.', who:p => p.sport==='bq' && isPlayer(p)},
-  {id:'remate-m', title:'Remate de Oro', tag:'vm', desc:'El mejor jugador del vóley masculino.', who:p => p.sport==='vm' && isPlayer(p)},
-  {id:'remate-f', title:'Remate de Oro', tag:'vf', desc:'La mejor jugadora del vóley femenino.', who:p => p.sport==='vf' && isPlayer(p)},
-  {id:'maestro', title:'Gran Maestro', tag:'aj', desc:'El cerebro del tablero. Vale votar al DT.', who:p => p.sport==='aj'},
-  {id:'patada', title:'La Patada del Año', tagText:'Fútbol', desc:'La falta más recordada del torneo. Con cariño.', who:p => (p.sport==='fm'||p.sport==='ff') && isPlayer(p)},
-  {id:'mano', title:'Mano Caliente', tag:'bq', desc:'El que no le erraba a nada. O eso decía.', who:p => p.sport==='bq' && isPlayer(p)},
-  {id:'muralla', title:'La Muralla', tagText:'Vóley', desc:'Bloqueo, salvada o cara que frenó una pelota imposible.', who:p => (p.sport==='vm'||p.sport==='vf') && isPlayer(p)},
-  {id:'dt', title:'Mejor DT', tagText:'Cuerpo técnico', desc:'El que mejor bancó al equipo desde el costado.', who:p => p.role==='DT'},
-  {id:'companero', title:'Mejor Compañero/a', desc:'Siempre estuvo: para alentar, prestar el cargador o compartir el mate.', who:() => true},
-  {id:'fiesta', title:'Alma de la Fiesta', desc:'Sin esta persona el viaje no hubiera sido lo mismo.', who:() => true},
-  {id:'hincha', title:'Hincha Número 1', desc:'Alentó en todos los partidos, hasta en los de deportes que no entendía.', who:() => true},
-  {id:'perdido', title:'Perdido/a en la Villa', desc:'Nunca supo dónde era la cancha, el comedor ni su habitación en la Villa Suramericana.', who:() => true},
-  {id:'dormilon', title:'Dormilón/a Oficial', desc:'Llegó tarde a todo o se durmió en cualquier lado.', who:() => true},
-  {id:'lloron', title:'Le Reclamó al Árbitro', desc:'Cada cobro era una injusticia histórica.', who:() => true},
-  {id:'dj', title:'DJ del Colectivo', desc:'Puso la música del viaje, nos gustara o no.', who:() => true},
-  {id:'hielo', title:'Más Hielo que Cancha', desc:'Pasó más tiempo con una bolsa de hielo que jugando.', who:() => true},
-  {id:'facha', title:'Facha del Viaje', desc:'El mejor outfit de la delegación, dentro y fuera de la cancha.', who:() => true},
-  {id:'revelacion', title:'Revelación del Viaje', desc:'Casi nadie lo/la conocía y terminó siendo un/a crack.', who:() => true},
-  {id:'festejo', title:'Mejor Festejo', desc:'El grito, el baile o la locura después de un punto.', who:() => true}
+  {id:'botin-m', title:'Botín de Oro', tag:'fm', desc:'El mejor jugador del equipo de fútbol masculino.', prize:'Pelota Antiestrés', who:p => p.sport==='fm' && isPlayer(p)},
+  {id:'botin-f', title:'Botín de Oro', tag:'ff', desc:'La mejor jugadora del equipo de fútbol femenino.', prize:'Pelota Antiestrés', who:p => p.sport==='ff' && isPlayer(p)},
+  {id:'mvp-bq', title:'MVP del Básquet', tag:'bq', desc:'El que más la rompió bajo el aro.', prize:'Pelota Antiestrés', who:p => p.sport==='bq' && isPlayer(p)},
+  {id:'remate-m', title:'Remate de Oro', tag:'vm', desc:'El mejor jugador del vóley masculino.', prize:'Pelota Antiestrés', who:p => p.sport==='vm' && isPlayer(p)},
+  {id:'remate-f', title:'Remate de Oro', tag:'vf', desc:'La mejor jugadora del vóley femenino.', prize:'Canicas de Vidrio', who:p => p.sport==='vf' && isPlayer(p)},
+  {id:'maestro', title:'Gran Maestro', tag:'aj', desc:'El cerebro del tablero. Vale votar al DT.', prize:'Puzzle de Personajes 48 pzs', who:p => p.sport==='aj'},
+  {id:'patada', title:'La Patada del Año', tagText:'Fútbol', desc:'La falta más recordada del torneo. Con cariño.', prize:'Guantes de Trabajo', who:p => (p.sport==='fm'||p.sport==='ff') && isPlayer(p)},
+  {id:'mano', title:'Mano Caliente', tag:'bq', desc:'El que no le erraba a nada. O eso decía.', prize:'Set de Arco y Flechas', who:p => p.sport==='bq' && isPlayer(p)},
+  {id:'muralla', title:'La Muralla', tagText:'Vóley', desc:'Bloqueo, salvada o cara que frenó una pelota imposible.', prize:'Gancho Cierra Bolsa', who:p => (p.sport==='vm'||p.sport==='vf') && isPlayer(p)},
+  {id:'dt', title:'Mejor DT', tagText:'Cuerpo técnico', desc:'El que mejor bancó y ordenó al equipo desde el costado.', prize:'Caña de Pescar Mojarrera', who:p => p.role==='DT'},
+  {id:'truco', title:'El Cirujano del Truco', desc:'Cantó retruco con 19 de tanto o mintió todo el viaje sin que se le mueva un pelo.', prize:'Cartas Naipes Españolas', who:all},
+  {id:'falso-envido', title:'El Falso Envido', desc:'Juraba que tenía 33 y se fue al mazo calladito en la primera mano.', prize:'Cartas Naipes Españolas', who:all},
+  {id:'grito', title:'El Grito Sagrado', desc:'Casi voltea la mesa al grito de ¡chancho! o festejó un punto antes de tiempo.', prize:'Juego de Cartas Chancho Va', who:all},
+  {id:'millonario', title:'El Millonario de la Delegación', desc:'Siempre decía "anotámelo que después te transfiero" y nunca liquidó las deudas.', prize:'Billetes de Cotillón', who:all},
+  {id:'rata', title:'Rata Colosal', desc:'Cuidó cada centavo del viaje como si fuera una reserva federal.', prize:'Billetes de Cotillón', who:all},
+  {id:'robin-hood', title:'Robin Hood / Francotirador', desc:'Tiró a embocar desde cualquier ángulo (en la cancha o chamuyando afuera).', prize:'Set de Arco y Flechas', who:all},
+  {id:'subibaja', title:'El Subibaja Emocional', desc:'Arrancó el día como figura indiscutida y a la tarde no coordinaba ni los cordones.', prize:'Super Yo-Yo', who:all},
+  {id:'retorno', title:'Efecto Retorno', desc:'Siempre volvía a la habitación a buscar algo que se había olvidado a último segundo.', prize:'Super Yo-Yo', who:all},
+  {id:'vueltero', title:'El Vueltero', desc:'Para tomar una decisión grupal tardó 45 minutos y dio tres vueltas a la Villa.', prize:'Yo-Yo en Blíster', who:all},
+  {id:'cero-senal', title:'Cero Señal', desc:'Nunca le llegaron los mensajes del grupo de WhatsApp a horario por estar colgado.', prize:'Juego de Agua Celular', who:all},
+  {id:'pantalla', title:'Adicto a la Pantalla', desc:'Se quejó todo el viaje de la falta de señal; acá tiene su celu analógico.', prize:'Juego de Agua Celular', who:all},
+  {id:'bateria', title:'Batería Baja', desc:'Vivió pidiendo cargador prestado porque siempre salía con 3% de batería a la cancha.', prize:'Juego de Agua Celular', who:all},
+  {id:'rebotin', title:'Rebotín del Torneo', desc:'La pelota le rebotó en todas las partes del cuerpo menos en donde tenía que pegar.', prize:'Juego Pinball de Mano', who:all},
+  {id:'ruleta', title:'Ruleta Rusa', desc:'Cada intervención suya era una lotería: o jugada de lujo o blooper directo al archivo.', prize:'Juego Pinball de Mano', who:all},
+  {id:'vengador', title:'El Vengador Infantil', desc:'Se levantaba a las 7 AM con energía de dibujito animado mientras el resto pedía auxilio.', prize:'Vaso Plástico Avengers', who:all},
+  {id:'chiquilin', title:'El Chiquilín del Plantel', desc:'Hizo capricho por la comida, el asiento del micro o el turno de la ducha.', prize:'Vaso Plástico Avengers', who:all},
+  {id:'vende-humo', title:'El Vende Humo', desc:'Mucho relato épico en la previa, pero a la hora del partido desapareció en el aire.', prize:'Burbujero Pala y Rastrillo', who:all},
+  {id:'nube', title:'Viviendo en una Nube', desc:'Despistado total; nunca supo en qué cancha jugábamos ni a qué hora era el almuerzo.', prize:'Burbujero Pala y Rastrillo', who:all},
+  {id:'globo', title:'Se le Pinchó el Globo', desc:'Decía que salíamos campeones invictos y al primer tiempo ya pedía la hora.', prize:'Burbujero Stick Conejo', who:all},
+  {id:'pulmon', title:'El Pulmón de la Hinchada', desc:'Se encargó de agitar, hacer ruido y levantar a la tribuna en cada partido.', prize:'Burbujero Stick Pala y Rastrillo', who:all},
+  {id:'dj', title:'DJ del Colectivo', desc:'Puso la música del viaje de punta a punta, nos gustara o no.', prize:'Burbujero Stick Auto', who:all},
+  {id:'pecho-frio', title:'Pecho Frío / Clima Glacial', desc:'Cuando el partido quemaba, parecía que estaba de vacaciones en la nieve.', prize:'Pino Deco Mini 10 cm', who:all},
+  {id:'navidad', title:'Navidad Anticipada', desc:'Repartió regalos y pases servidos al rival como si fuera Papá Noel.', prize:'Pino Deco Mini 10 cm', who:all},
+  {id:'congelado', title:'Congelado en la Cancha', desc:'Se quedó petrificado mirando la jugada mientras pasaba la pelota al lado.', prize:'Árbol de Navidad Nevado 20 cm', who:all},
+  {id:'dormilon', title:'Dormilón/a Oficial', desc:'Se durmió en el micro, en la tribuna y casi se queda hibernando en la Villa.', prize:'Árbol de Navidad Nevado 20 cm', who:all}
 ];
-// The order people vote in (and awards are presented): one team award, then one general award.
-// Changing it is safe; vote codes follow CATS, not this list.
+// The order people vote in (and awards are presented): team awards spread between the general ones.
+// Changing it is safe; ballots follow award ids, not this list.
 const VOTE_ORDER = [
-  'botin-m', 'companero', 'mvp-bq', 'fiesta', 'remate-f', 'hincha', 'patada', 'perdido', 'maestro', 'dormilon',
-  'botin-f', 'lloron', 'muralla', 'dj', 'mano', 'hielo', 'remate-m', 'facha', 'dt', 'revelacion', 'festejo'
+  'botin-m', 'truco', 'millonario', 'mvp-bq', 'grito', 'cero-senal', 'remate-f', 'dj', 'subibaja',
+  'patada', 'vende-humo', 'vengador', 'maestro', 'dormilon', 'rebotin', 'botin-f', 'falso-envido', 'pulmon',
+  'muralla', 'rata', 'nube', 'mano', 'retorno', 'pantalla', 'remate-m', 'chiquilin', 'pecho-frio',
+  'dt', 'robin-hood', 'vueltero', 'bateria', 'ruleta', 'globo', 'navidad', 'congelado'
 ];
 const STEPS = VOTE_ORDER.map(id => CATS.find(c => c.id === id));
 const catTag = c => c.tag ? SPORTS[c.tag].name : (c.tagText || 'Toda la delegación');
@@ -758,6 +776,7 @@ function renderAdmin(){
       const inTerna = new Set(t.terna.map(([p]) => p));
       box.append(h('div', {class:'res-cat'},
         h('div', {class:'vote-meta'}, h('h3', {}, t.c.title), h('span', {class:'tag', style:`--c:${catColor(t.c)}`}, catTag(t.c))),
+        h('p', {class:'note'}, 'Premio: ' + t.c.prize),
         t.sorted.length ? t.sorted.slice(0, 6).map(([p,n]) => h('div', {class:'bar' + (inTerna.has(p) ? ' top' : '')},
           h('span', {class:'n'}, PEOPLE[p].label),
           h('span', {class:'track'}, h('span', {class:'fill', style:`display:block;width:${(n/max*100).toFixed(1)}%`})),
@@ -864,6 +883,7 @@ function renderBeat(){
         h('span', {class:'meta'}, SPORTS[PEOPLE[p].sport].name),
         h('span', {class:'nm' + (PEOPLE[p].label.length > 20 ? ' long' : '') + (t.winners.length > 1 ? ' tie' : '')}, PEOPLE[p].label),
         h('span', {class:'meta'}, ballotsOf(votes))))),
+      h('p', {class:'sh-desc'}, (t.winners.length > 1 ? 'Cada uno se lleva: ' : 'Se lleva: ') + c.prize),
       ...(rest.length ? [h('div', {class:'sh-rest'}, rest.map(p => h('span', {}, PEOPLE[p].label)))] : []));
     confetti(); playHit();
   }
